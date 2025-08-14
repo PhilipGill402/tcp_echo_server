@@ -113,6 +113,18 @@ int main(){
     printf("Listening on port %d\n", SERVER_PORT);
     
     while (running){
+        struct pollfd pfd = {.fd = server_fd, .events = POLLIN};
+        ret = poll(&pfd, 1, 1000);
+        if (ret < 0){
+            if (errno == EINTR){
+                break;
+            }
+            perror("poll");
+            break;
+        } else if (ret == 0){
+            continue;
+        }
+
         struct sockaddr_in client_address;
         socklen_t client_address_len = sizeof(client_address);
         pthread_t thread;
@@ -120,10 +132,19 @@ int main(){
         
         *client_fd = accept(server_fd, (struct sockaddr*)&client_address, &client_address_len);
         if (*client_fd < 0){
+            if (errno == EINTR){
+                close(*client_fd);
+                free(client_fd);
+                break;
+            }
             perror("accept");
+            close(*client_fd);
+            free(client_fd);
             close(server_fd);
             return -1;
         }
+        
+        printf("Client %d connected\n", *client_fd);
         
         pthread_create(&thread, NULL, handle_client, client_fd);
         pthread_detach(thread);

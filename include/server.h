@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
+#include <errno.h>
+#include <poll.h>
 
 void* handle_client(void* arg);
 void signal_handler(int sig);
