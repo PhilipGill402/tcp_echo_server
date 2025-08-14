@@ -7,3 +7,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <signal.h>
+
+void* handle_client(void* arg);
+void signal_handler(int sig);
